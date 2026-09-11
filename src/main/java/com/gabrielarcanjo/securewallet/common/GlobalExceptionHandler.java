@@ -7,8 +7,12 @@ import com.gabrielarcanjo.securewallet.transaction.SameWalletTransferException;
 import com.gabrielarcanjo.securewallet.user.exception.EmailAlreadyRegisteredException;
 import com.gabrielarcanjo.securewallet.wallet.WalletNotFoundException;
 import com.gabrielarcanjo.securewallet.wallet.InvalidAmountException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -19,6 +23,8 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(EmailAlreadyRegisteredException.class)
     public ResponseEntity<ApiError> handleEmailAlreadyRegistered(EmailAlreadyRegisteredException exception) {
@@ -53,6 +59,26 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(SameWalletTransferException.class)
     public ResponseEntity<ApiError> handleSameWalletTransfer(SameWalletTransferException exception) {
         return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage(), Map.of());
+    }
+
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<ApiError> handleConcurrentUpdate(ObjectOptimisticLockingFailureException exception) {
+        return buildResponse(
+                HttpStatus.CONFLICT,
+                "A carteira foi atualizada por outra operação. Tente novamente.",
+                Map.of()
+        );
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiError> handleDataConflict(DataIntegrityViolationException exception) {
+        return buildResponse(HttpStatus.CONFLICT, "Conflito ao salvar os dados", Map.of());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiError> handleUnexpectedError(Exception exception) {
+        logger.error("Unexpected API error", exception);
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno do servidor", Map.of());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

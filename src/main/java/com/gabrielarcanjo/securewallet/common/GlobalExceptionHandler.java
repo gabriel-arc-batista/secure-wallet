@@ -3,6 +3,7 @@ package com.gabrielarcanjo.securewallet.common;
 import com.gabrielarcanjo.securewallet.auth.InvalidCredentialsException;
 import com.gabrielarcanjo.securewallet.transaction.InsufficientBalanceException;
 import com.gabrielarcanjo.securewallet.transaction.RecipientNotFoundException;
+import com.gabrielarcanjo.securewallet.transaction.SameWalletTransferException;
 import com.gabrielarcanjo.securewallet.user.exception.EmailAlreadyRegisteredException;
 import com.gabrielarcanjo.securewallet.wallet.WalletNotFoundException;
 import com.gabrielarcanjo.securewallet.wallet.InvalidAmountException;
@@ -47,6 +48,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RecipientNotFoundException.class)
     public ResponseEntity<ApiError> handleRecipientNotFound(RecipientNotFoundException exception) {
         return buildResponse(HttpStatus.NOT_FOUND, exception.getMessage(), Map.of());
+    }
+
+    @ExceptionHandler(SameWalletTransferException.class)
+    public ResponseEntity<ApiError> handleSameWalletTransfer(SameWalletTransferException exception) {
+        return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage(), Map.of());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

@@ -34,6 +34,9 @@ public class TransferService {
                 .orElseThrow(RecipientNotFoundException::new);
         BigDecimal amount = request.amount().setScale(2, RoundingMode.UNNECESSARY);
 
+        if (senderWallet.getId().equals(recipientWallet.getId())) {
+            throw new SameWalletTransferException();
+        }
         if (amount.signum() <= 0) {
             throw new InvalidAmountException();
         }

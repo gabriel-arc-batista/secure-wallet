@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { getToken } from './api.js'
+import { clearToken, getToken } from './api.js'
 import AuthPage from './components/AuthPage.jsx'
+import Dashboard from './components/Dashboard.jsx'
 
 function App() {
   const [authenticated, setAuthenticated] = useState(Boolean(getToken()))
@@ -9,12 +10,12 @@ function App() {
     return <AuthPage onLogin={() => setAuthenticated(true)} />
   }
 
-  return (
-    <main className="page">
-      <h1>Secure Wallet</h1>
-      <p>Login realizado com sucesso.</p>
-    </main>
-  )
+  function logout() {
+    clearToken()
+    setAuthenticated(false)
+  }
+
+  return <Dashboard onLogout={logout} />
 }
 
 export default App

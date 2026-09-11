@@ -38,6 +38,10 @@ public class WalletService {
                 .orElseThrow(WalletNotFoundException::new);
         BigDecimal amount = request.amount().setScale(2, RoundingMode.UNNECESSARY);
 
+        if (amount.signum() <= 0) {
+            throw new InvalidAmountException();
+        }
+
         wallet.add(amount);
         WalletTransaction transaction = new WalletTransaction(
                 wallet,

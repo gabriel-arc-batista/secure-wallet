@@ -3,6 +3,7 @@ package com.gabrielarcanjo.securewallet.common;
 import com.gabrielarcanjo.securewallet.auth.InvalidCredentialsException;
 import com.gabrielarcanjo.securewallet.user.exception.EmailAlreadyRegisteredException;
 import com.gabrielarcanjo.securewallet.wallet.WalletNotFoundException;
+import com.gabrielarcanjo.securewallet.wallet.InvalidAmountException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -29,6 +30,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(WalletNotFoundException.class)
     public ResponseEntity<ApiError> handleWalletNotFound(WalletNotFoundException exception) {
         return buildResponse(HttpStatus.NOT_FOUND, exception.getMessage(), Map.of());
+    }
+
+    @ExceptionHandler(InvalidAmountException.class)
+    public ResponseEntity<ApiError> handleInvalidAmount(InvalidAmountException exception) {
+        return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage(), Map.of());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

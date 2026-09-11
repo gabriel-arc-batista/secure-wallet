@@ -3,6 +3,8 @@ package com.gabrielarcanjo.securewallet.user;
 import com.gabrielarcanjo.securewallet.user.dto.CreateUserRequest;
 import com.gabrielarcanjo.securewallet.user.dto.UserResponse;
 import com.gabrielarcanjo.securewallet.user.exception.EmailAlreadyRegisteredException;
+import com.gabrielarcanjo.securewallet.wallet.Wallet;
+import com.gabrielarcanjo.securewallet.wallet.WalletRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,10 +16,16 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final WalletRepository walletRepository;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            WalletRepository walletRepository
+    ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.walletRepository = walletRepository;
     }
 
     @Transactional
@@ -31,6 +39,7 @@ public class UserService {
         String passwordHash = passwordEncoder.encode(request.password());
         User user = new User(request.fullName().trim(), email, passwordHash);
         User savedUser = userRepository.save(user);
+        walletRepository.save(new Wallet(savedUser));
 
         return UserResponse.from(savedUser);
     }
